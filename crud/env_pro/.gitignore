@@ -1,0 +1,67 @@
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment folders
+venv/
+env/
+ENV/
+.venv/
+
+# Django specific
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# Environment & secrets
+.env
+.env.local
+*.env
+
+# VS Code / PyCharm IDE
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Migrations (optional — keep them if you want version control)
+# Uncomment below line ONLY if you do NOT want to track migrations
+# */migrations/
+
+# Python bytecode cache
+*.pyc
+
+# Temporary files
+*.bak
+*.tmp
+
+# Coverage / testing
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+htmlcov/
+.cache/
+pytest_cache/
+
+# Node / React frontend (if combined project)
+node_modules/
+npm-debug.log
+build/
+dist/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+
+
+.env
+__pycache__/
+*.pyc
+db.sqlite3
+venv/
+
