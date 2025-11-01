@@ -7,3 +7,4 @@ urlpatterns = [
     path('students/update/<int:id>/', views.update_student),
     path('students/delete/<int:id>/', views.delete_student),
 ]
+
