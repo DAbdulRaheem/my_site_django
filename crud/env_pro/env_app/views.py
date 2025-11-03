@@ -46,6 +46,6 @@ def update_student(request, id):
 @csrf_exempt
 def delete_student(request, id):
     if request.method == "DELETE":
-        student = Student.objects.get(id=id)
+        student = Student.objects.get(id=id) 
         student.delete()
         return HttpResponse("Student deleted successfully!")
