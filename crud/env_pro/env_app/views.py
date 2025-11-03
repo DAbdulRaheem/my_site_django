@@ -8,6 +8,12 @@ from .models import Student
 import json
 from django.views.decorators.csrf import csrf_exempt
 
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello! This is the home page.")
+
+
 @csrf_exempt
 def create_student(request):
     if request.method == "POST":
