@@ -130,14 +130,24 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+from pathlib import Path
+import os
+import environ
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
 DATABASES = {
     'default': {
-        'ENGINE': env('DB_ENGINE', default='django.db.backends.mysql'),
-        'NAME': env('DB_NAME', default=os.path.join(BASE_DIR, 'db.mysql')),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME', default=''),
         'USER': env('DB_USER', default=''),
         'PASSWORD': env('DB_PASSWORD', default=''),
         'HOST': env('DB_HOST', default=''),
-        'PORT': env('DB_PORT', default=''),
+        'PORT': env('DB_PORT', default='3306'),
     }
 }
+
 
