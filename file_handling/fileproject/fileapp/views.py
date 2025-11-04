@@ -1,58 +1,80 @@
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Document
-from .serializers import DocumentSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Documents
+
 
 # CREATE (POST)
-@api_view(['POST'])
-@parser_classes([MultiPartParser, FormParser])
+@csrf_exempt
 def upload_file(request):
-    serializer = DocumentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "File uploaded successfully!"}, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "POST":
+        file = request.FILES.get('file')
+        title = request.POST.get('title', '')
+
+        if not file:
+            return JsonResponse({"error": "No file provided"}, status=400)
+
+        document = Documents.objects.create(title=title, file=file)
+        return JsonResponse({"message": "File uploaded successfully!", "id": document.id}, status=201)
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 # READ (GET all)
-@api_view(['GET'])
+@csrf_exempt
 def list_files(request):
-    files = Document.objects.all()
-    serializer = DocumentSerializer(files, many=True)
-    return Response(serializer.data)
+    if request.method == "GET":
+        files = Documents.objects.all().values('id', 'title', 'file')
+        return JsonResponse(list(files), safe=False)
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 # READ (GET one)
-@api_view(['GET'])
+@csrf_exempt
 def get_file(request, pk):
-    try:
-        file = Document.objects.get(pk=pk)
-    except Document.DoesNotExist:
-        return Response({"error": "File not found"}, status=status.HTTP_404_NOT_FOUND)
-    serializer = DocumentSerializer(file)
-    return Response(serializer.data)
+    if request.method == "GET":
+        try:
+            file = Documents.objects.get(pk=pk)
+            data = {"id": file.id, "title": file.title, "file": file.file.url}
+            return JsonResponse(data)
+        except ObjectDoesNotExist:
+            return JsonResponse({"error": "File not found"}, status=404)
 
-# UPDATE (PATCH)
-@api_view(['PATCH'])
-@parser_classes([MultiPartParser, FormParser])
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+# UPDATE (PATCH/POST)
+@csrf_exempt
 def update_file(request, pk):
-    try:
-        file = Document.objects.get(pk=pk)
-    except Document.DoesNotExist:
-        return Response({"error": "File not found"}, status=status.HTTP_404_NOT_FOUND)
+    if request.method in ["POST", "PATCH"]:
+        try:
+            file = Documents.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return JsonResponse({"error": "File not found"}, status=404)
 
-    serializer = DocumentSerializer(file, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "File updated successfully!"})
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        title = request.POST.get('title', file.title)
+        new_file = request.FILES.get('file')
+
+        if new_file:
+            file.file = new_file
+        file.title = title
+        file.save()
+
+        return JsonResponse({"message": "File updated successfully!"})
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 # DELETE
-@api_view(['DELETE'])
+@csrf_exempt
 def delete_file(request, pk):
-    try:
-        file = Document.objects.get(pk=pk)
-        file.delete()
-        return Response({"message": "File deleted successfully!"})
-    except Document.DoesNotExist:
-        return Response({"error": "File not found"}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == "DELETE":
+        try:
+            file = Documents.objects.get(pk=pk)
+            file.delete()
+            return JsonResponse({"message": "File deleted successfully!"})
+        except ObjectDoesNotExist:
+            return JsonResponse({"error": "File not found"}, status=404)
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
