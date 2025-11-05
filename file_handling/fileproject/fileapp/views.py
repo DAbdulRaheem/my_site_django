@@ -10,17 +10,29 @@ def create_mobile(request):
     if request.method == "POST":
         title = request.POST.get('title', '')
         brand = request.POST.get('brand', '')
-        image = request.FILES.get('image')  # handle file upload
+        image_file = request.FILES.get('image')  
 
-        if not image or not brand:
+        if not image_file or not brand:
             return JsonResponse({"error": "Brand and image file are required"}, status=400)
 
-        mobile = Mobiles.objects.create(title=title, brand=brand, image=image)
-        return JsonResponse({
-            "message": "Mobile created successfully!",
-            "id": mobile.id,
-            "image_url": mobile.image.url  # Cloudinary URL
-        }, status=201)
+        try:
+            # Upload image to Cloudinary
+            upload_result = upload(image_file)
+            image_url = upload_result.get('secure_url')
+
+            # Save in database
+            mobile = Mobiles.objects.create(title=title, brand=brand, image=image_url)
+
+            return JsonResponse({
+                "message": "Mobile created successfully!",
+                "id": mobile.id,
+                "title": mobile.title,
+                "brand": mobile.brand,
+                "image_url": image_url
+            }, status=201)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
@@ -31,7 +43,12 @@ def list_mobiles(request):
     if request.method == "GET":
         mobiles = Mobiles.objects.all()
         data = [
-            {"id": m.id, "title": m.title, "brand": m.brand, "image_url": m.image.url}
+            {
+                "id": m.id,
+                "title": m.title,
+                "brand": m.brand,
+                "image_url": m.image  # stored Cloudinary URL
+            }
             for m in mobiles
         ]
         return JsonResponse(data, safe=False)
@@ -48,7 +65,7 @@ def get_mobile(request, pk):
                 "id": mobile.id,
                 "title": mobile.title,
                 "brand": mobile.brand,
-                "image_url": mobile.image.url
+                "image_url": mobile.image
             }
             return JsonResponse(data)
         except ObjectDoesNotExist:
@@ -67,15 +84,28 @@ def update_mobile(request, pk):
 
         title = request.POST.get('title', mobile.title)
         brand = request.POST.get('brand', mobile.brand)
-        image = request.FILES.get('image')
+        image_file = request.FILES.get('image')
 
-        mobile.title = title
-        mobile.brand = brand
-        if image:
-            mobile.image = image
-        mobile.save()
+        try:
+            if image_file:
+                # Upload new image to Cloudinary
+                upload_result = upload(image_file)
+                mobile.image = upload_result.get('secure_url')
 
-        return JsonResponse({"message": "Mobile updated successfully!", "image_url": mobile.image.url})
+            mobile.title = title
+            mobile.brand = brand
+            mobile.save()
+
+            return JsonResponse({
+                "message": "Mobile updated successfully!",
+                "id": mobile.id,
+                "title": mobile.title,
+                "brand": mobile.brand,
+                "image_url": mobile.image
+            })
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
