@@ -20,6 +20,8 @@ import cloudinary.api
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from dotenv import load_dotenv
 load_dotenv()
+import os
+print("DB_HOST:", os.getenv("DB_HOST"))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -134,21 +136,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
-}
-
-
 ALLOWED_HOSTS=['*']
-
 
 import os
 
@@ -165,3 +153,4 @@ cloudinary.config(
     api_key=CLOUDINARY_API_KEY,
     api_secret=CLOUDINARY_API_SECRET
 )
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
