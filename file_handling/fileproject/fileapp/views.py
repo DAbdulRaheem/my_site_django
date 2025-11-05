@@ -1,80 +1,92 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Documents
-
+from .models import Mobiles
 
 # CREATE (POST)
 @csrf_exempt
-def upload_file(request):
+def create_mobile(request):
     if request.method == "POST":
-        file = request.FILES.get('file')
         title = request.POST.get('title', '')
+        brand = request.POST.get('brand', '')
+        image = request.FILES.get('image')  # handle file upload
 
-        if not file:
-            return JsonResponse({"error": "No file provided"}, status=400)
+        if not image or not brand:
+            return JsonResponse({"error": "Brand and image file are required"}, status=400)
 
-        document = Documents.objects.create(title=title, file=file)
-        return JsonResponse({"message": "File uploaded successfully!", "id": document.id}, status=201)
-    
+        mobile = Mobiles.objects.create(title=title, brand=brand, image=image)
+        return JsonResponse({
+            "message": "Mobile created successfully!",
+            "id": mobile.id,
+            "image_url": mobile.image.url  # Cloudinary URL
+        }, status=201)
+
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 # READ (GET all)
 @csrf_exempt
-def list_files(request):
+def list_mobiles(request):
     if request.method == "GET":
-        files = Documents.objects.all().values('id', 'title', 'file')
-        return JsonResponse(list(files), safe=False)
-    
+        mobiles = Mobiles.objects.all()
+        data = [
+            {"id": m.id, "title": m.title, "brand": m.brand, "image_url": m.image.url}
+            for m in mobiles
+        ]
+        return JsonResponse(data, safe=False)
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 # READ (GET one)
 @csrf_exempt
-def get_file(request, pk):
+def get_mobile(request, pk):
     if request.method == "GET":
         try:
-            file = Documents.objects.get(pk=pk)
-            data = {"id": file.id, "title": file.title, "file": file.file.url}
+            mobile = Mobiles.objects.get(pk=pk)
+            data = {
+                "id": mobile.id,
+                "title": mobile.title,
+                "brand": mobile.brand,
+                "image_url": mobile.image.url
+            }
             return JsonResponse(data)
         except ObjectDoesNotExist:
-            return JsonResponse({"error": "File not found"}, status=404)
-
+            return JsonResponse({"error": "Mobile not found"}, status=404)
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-# UPDATE (PATCH/POST)
+# UPDATE (POST/PATCH)
 @csrf_exempt
-def update_file(request, pk):
+def update_mobile(request, pk):
     if request.method in ["POST", "PATCH"]:
         try:
-            file = Documents.objects.get(pk=pk)
+            mobile = Mobiles.objects.get(pk=pk)
         except ObjectDoesNotExist:
-            return JsonResponse({"error": "File not found"}, status=404)
+            return JsonResponse({"error": "Mobile not found"}, status=404)
 
-        title = request.POST.get('title', file.title)
-        new_file = request.FILES.get('file')
+        title = request.POST.get('title', mobile.title)
+        brand = request.POST.get('brand', mobile.brand)
+        image = request.FILES.get('image')
 
-        if new_file:
-            file.file = new_file
-        file.title = title
-        file.save()
+        mobile.title = title
+        mobile.brand = brand
+        if image:
+            mobile.image = image
+        mobile.save()
 
-        return JsonResponse({"message": "File updated successfully!"})
-    
+        return JsonResponse({"message": "Mobile updated successfully!", "image_url": mobile.image.url})
+
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 # DELETE
 @csrf_exempt
-def delete_file(request, pk):
+def delete_mobile(request, pk):
     if request.method == "DELETE":
         try:
-            file = Documents.objects.get(pk=pk)
-            file.delete()
-            return JsonResponse({"message": "File deleted successfully!"})
+            mobile = Mobiles.objects.get(pk=pk)
+            mobile.delete()
+            return JsonResponse({"message": "Mobile deleted successfully!"})
         except ObjectDoesNotExist:
-            return JsonResponse({"error": "File not found"}, status=404)
-    
+            return JsonResponse({"error": "Mobile not found"}, status=404)
     return JsonResponse({"error": "Invalid request method"}, status=405)

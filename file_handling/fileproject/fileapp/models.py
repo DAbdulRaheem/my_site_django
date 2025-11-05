@@ -1,8 +1,10 @@
 from django.db import models
 
-class Documents(models.Model):
+class Mobiles(models.Model):
     title = models.CharField(max_length=255, blank=True)
-    file = models.FileField(upload_to='uploads/')
+    brand=models.CharField(max_length=100,blank=False)
+    image=models.URLField()
+    
     # uploaded_at = models.DateTimeField(auto_now_add=True)
 
     # def __str__(self):
