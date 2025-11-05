@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+from cloudinary.uploader import upload
 from .models import Mobiles
 
 # CREATE (POST)
