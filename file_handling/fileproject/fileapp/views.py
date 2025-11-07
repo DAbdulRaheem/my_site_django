@@ -47,7 +47,7 @@ def list_mobiles(request):
                 "id": m.id,
                 "title": m.title,
                 "brand": m.brand,
-                "image_url": m.image  # stored Cloudinary URL
+                "image_url": m.image  
             }
             for m in mobiles
         ]
