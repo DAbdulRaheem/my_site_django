@@ -144,7 +144,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-ALLOWED_HOSTS=['*',"https://my-site-django-1.onrender.com/","http://127.0.0.1:8000/","http://localhost:5173",]
+ALLOWED_HOSTS=['*',"https://my-site-django-1.onrender.com/","http://localhost:5173",]
 CORS_ALLOW_ALL_ORIGINS = True
 
 
