@@ -4,14 +4,14 @@ from django.shortcuts import render
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.http import JsonResponse
 from .models import Student
+import bcrypt
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from django.http import HttpResponse
-
 def home(request):
-    return HttpResponse("Hello! This is the home page.")
+    return JsonResponse({"message": "Hello! This is the home page."})
 
 
 @csrf_exempt
@@ -19,16 +19,37 @@ def create_student(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            Student.objects.create(
-                name=data['name'],
-                email=data['email'],
-                age=data['age'],
-                course=data['course']
+
+            name = data.get('name')
+            email = data.get('email')
+            age = data.get('age')
+            course = data.get('course')
+
+            # ✅ Print incoming values (same as your example)
+            print("Received name:", name)
+            print("Received email:", email)
+
+            if not name or not email:
+                return JsonResponse({"error": "Name and email are required."}, status=400)
+
+            # ✅ MANUAL HASHING using bcrypt (same style as your password hashing)
+            hashed_email = bcrypt.hashpw(email.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
+
+            # ✅ Save to database
+            student = Student(
+                name=name,
+                email=hashed_email,   # store hashed email
+                age=age,
+                course=course
             )
-            
-            return HttpResponse("Student created successfully!")
-        except Exception as e:
-            return HttpResponse(f"Error creating student: {e}")
+            student.save()
+
+            return JsonResponse({"message": "Student created successfully with hashed email!"})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON."}, status=400)
+
+    return JsonResponse({"error": "POST request required."}, status=405)
 
 @csrf_exempt
 def read_students(request):
