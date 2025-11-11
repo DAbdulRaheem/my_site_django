@@ -17,14 +17,18 @@ def home(request):
 @csrf_exempt
 def create_student(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        Student.objects.create(
-            name=data['name'],
-            email=data['email'],
-            age=data['age'],
-            course=data['course']
-        )
-        return HttpResponse("Student created successfully!")
+        try:
+            data = json.loads(request.body)
+            Student.objects.create(
+                name=data['name'],
+                email=data['email'],
+                age=data['age'],
+                course=data['course']
+            )
+            
+            return HttpResponse("Student created successfully!")
+        except Exception as e:
+            return HttpResponse(f"Error creating student: {e}")
 
 @csrf_exempt
 def read_students(request):

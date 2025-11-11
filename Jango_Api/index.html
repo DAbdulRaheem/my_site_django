@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mobile Data Table</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th{
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        background-color: chartreuse;
+    }
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    img {
+      max-width: 100px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Mobile List</h2>
+  <div id="table-container"></div>
+
+  <script>
+    // Replace with your actual endpoint
+    const url = 'https://my-site-django-1.onrender.com/mobiles/';
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        let mobiles = Array.isArray(data) ? data : data.results || [];
+        
+        // If data is empty, show a message
+        if (!mobiles.length) {
+          document.getElementById('table-container').innerHTML = 'No data found!';
+          return;
+        }
+        
+        // Build HTML table
+        let tableHtml = '<table><thead><tr>';
+        tableHtml += '<th>Image</th>';  // Assuming field is 'image'
+        tableHtml += '<th>Name</th>';   // Assuming field is 'name'
+        tableHtml += '<th>Brand</th>';  // Assuming field is 'brand'
+        tableHtml += '</tr></thead><tbody>';
+        
+        mobiles.forEach(mobile => {
+          tableHtml += '<tr>';
+          // Image field (adjust 'image' if your field is named differently)
+          tableHtml += `<td><img src="${mobile.image_url}" alt="${mobile.name}"/></td>`;
+          tableHtml += `<td>${mobile.title}</td>`;
+          tableHtml += `<td>${mobile.brand}</td>`;
+          tableHtml += '</tr>';
+        });
+        
+        tableHtml += '</tbody></table>';
+        document.getElementById('table-container').innerHTML = tableHtml;
+      })
+      .catch(err => {
+        document.getElementById('table-container').innerHTML = 'Failed to load data.';
+      });
+  </script>
+</body>
+</html>
