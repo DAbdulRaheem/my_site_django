@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Menu</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      background-color: chartreuse;
+    }
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    img {
+      max-width: 100px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Menu List</h2>
+  <div id="table-container"></div>
+
+  <script>
+    const url = "https://restaurant-menu-4z3p.onrender.com/show_item/";
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        // Your actual list is inside Menu_card
+        const items = data.Menu_card;
+
+        if (!items || !items.length) {
+          document.getElementById("table-container").innerHTML = "No data found!";
+          return;
+        }
+
+        let tableHtml = `
+          <table>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Dish Name</th>
+                <th>Ingredients</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        items.forEach(item => {
+          tableHtml += `
+            <tr>
+              <td><img src="${item.Image}" alt="${item.DishName}"></td>
+              <td>${item.DishName}</td>
+              <td>${item.Ingredients}</td>
+              <td>₹${item.Price}</td>
+            </tr>
+          `;
+        });
+
+        tableHtml += "</tbody></table>";
+
+        document.getElementById("table-container").innerHTML = tableHtml;
+      })
+      .catch(error => {
+        document.getElementById("table-container").innerHTML = "Failed to load data.";
+      });
+  </script>
+</body>
+</html>

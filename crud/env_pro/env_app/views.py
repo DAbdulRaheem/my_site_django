@@ -52,9 +52,12 @@ def create_student(request):
     return JsonResponse({"error": "POST request required."}, status=405)
 
 @csrf_exempt
+# def read_students(request):
+#     students = list(Student.objects.values())
+#     return HttpResponse(json.dumps(students), content_type="application/json")
 def read_students(request):
-    students = list(Student.objects.values())
-    return HttpResponse(json.dumps(students), content_type="application/json")
+    students = list(Student.objects.values('id', 'name', 'age', 'course'))
+    return JsonResponse(students, safe=False)
 
 @csrf_exempt
 def update_student(request, id):

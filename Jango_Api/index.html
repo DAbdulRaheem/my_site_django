@@ -37,7 +37,7 @@
       .then(response => response.json())
       .then(data => {
         let mobiles = Array.isArray(data) ? data : data.results || [];
-        
+
         // If data is empty, show a message
         if (!mobiles.length) {
           document.getElementById('table-container').innerHTML = 'No data found!';
@@ -59,6 +59,7 @@
           tableHtml += `<td>${mobile.brand}</td>`;
           tableHtml += '</tr>';
         });
+
         
         tableHtml += '</tbody></table>';
         document.getElementById('table-container').innerHTML = tableHtml;
