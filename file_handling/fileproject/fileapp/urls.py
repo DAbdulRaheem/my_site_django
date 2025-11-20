@@ -7,4 +7,6 @@ urlpatterns = [
     path('mobiles/<int:pk>/', views.get_mobile, name='get_mobile'),
     path('mobiles/<int:pk>/update/', views.update_mobile, name='update_mobile'),
     path('mobiles/<int:pk>/delete/', views.delete_mobile, name='delete_mobile'),
+    path('register/', views.register_user),
+    path('login/', views.login_user),
 ]
